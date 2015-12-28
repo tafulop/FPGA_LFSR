@@ -29,10 +29,12 @@ architecture behavioral of testbench is
     -- Signal Declarations
     ------------------------------------------------------------------------------
 
-    signal clk     : std_logic;
+    signal enable   : std_logic;
+    signal reset    : std_logic;
+    signal clk      : std_logic;
     signal i_load   : std_logic;
-    signal o_number : unsigned(7 downto 0);
-    signal i_seed : unsigned(7 downto 0);
+    signal o_number : unsigned(6 downto 0);
+    signal i_seed   : unsigned(6 downto 0);
     
 
     ------------------------------------------------------------------------------
@@ -41,10 +43,12 @@ architecture behavioral of testbench is
 
     component LFSR_v1
         port (
-            i_load : std_logic;
-            clk : in std_logic;
-            o_number : out   unsigned (7 downto 0);
-            i_seed   : in    unsigned (7 downto 0)
+            enable  :   std_logic;
+            reset   :   std_logic;
+            i_load  :   std_logic;
+            clk     :   in    std_logic;
+            o_number:   out   unsigned (6 downto 0);
+            i_seed  :   in    unsigned (6 downto 0)
         
         );
     end component LFSR_v1;
@@ -58,6 +62,8 @@ begin
     ------------------------------------------------------------------------------
     inst_LFSR_v1 : LFSR_v1
     port map (
+        enable => enable,
+        reset => reset,
         i_load => i_load,
         clk => clk,
         o_number => o_number,
@@ -85,15 +91,34 @@ begin
     ------------------------------------------------------------------------------
     proc_stimulus: process
     begin
+    
+        -- normal counting fom seed : 1
+        enable  <=  '1';
+        i_load  <=  '1';
+        reset   <=  '0';
+        i_seed  <=  B"0000001";
+        wait for 10 us;      
+        
+        i_load <= '0';
+        wait for 10 ms;
+        
+        -- reset
+        reset <= '1';
+        wait for 10 ms;
+        reset <= '0';
+        wait for 10 ms;
+        
+        
+        -- load another seed : 0
         i_load <= '1';
-        i_seed <= X"02";
+        i_seed <= B"0000_000";
         wait for 20 ns;
-        
         i_load <= '0';
-        wait for 20 ns;
+        wait for 10 ms;
         
-        i_load <= '0';
-        wait for 20 ns;
+        -- disable test
+        enable  <=  '0';
+        wait for 10 ms;
 
         report "End of simulation.";
         wait;

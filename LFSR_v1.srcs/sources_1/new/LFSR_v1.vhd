@@ -33,42 +33,56 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity LFSR_v1 is
     Port ( 
+           enable   : in    std_logic;
+           reset    : in    std_logic;
            i_load   : in    std_logic;
            clk      : in    std_logic;
-           o_number : out   unsigned (7 downto 0);
-           i_seed   : in    unsigned (7 downto 0)      );
+           o_number : out   unsigned (6 downto 0);
+           i_seed   : in    unsigned (6 downto 0)      );
 end LFSR_v1;
 
 
 
 architecture Behavioral of LFSR_v1 is
 
-signal internal_number : unsigned(7 downto 0);
+signal internal_number : unsigned(6 downto 0);
 signal feedback : std_logic;
 
     
 begin
 
     
-    next_number : process(clk)
-        variable temp : unsigned(7 downto 0);
+    next_number : process(clk, reset)
+        
         begin 
         
             if rising_edge(clk) then      
                 
-                -- loading the seed
-                if(i_load = '1') then
-                    internal_number <= i_seed;
-                else
-                   
-                    internal_number <= internal_number(6 downto 0) & (internal_number(7) xnor internal_number(6));
-                    o_number <= internal_number;
+                -- run only if enable set to 1
+                if (enable = '1') then
+                    
+                    -- reset handling
+                    if(reset = '0') then
+                    
+                        -- loading the seed
+                        if(i_load = '1') then
+                            internal_number <= i_seed;
+                        else
+                            -- create the next random number
+                            internal_number <= internal_number(5 downto 0) & (internal_number(6) xnor internal_number(5)); 
+                             
+                        end if;
+                    elsif (enable = '1') then
+                        -- reset internal number to
+                        internal_number <= B"1111_111";                     
+                    end if;
+                    
+                    o_number <= internal_number; 
+                    
                 end if;
-
+                
             end if;
             
         end process next_number;
-    
-    
 
 end Behavioral;
