@@ -32,26 +32,28 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity LFSR_v1 is
+
+    Generic (width : integer := 63);
+
     Port ( 
            enable   : in    std_logic;
            reset    : in    std_logic;
            i_load   : in    std_logic;
            clk      : in    std_logic;
-           o_number : out   unsigned (6 downto 0);
-           i_seed   : in    unsigned (6 downto 0)      );
+           o_number : out   unsigned (width -1 downto 0);
+           i_seed   : in    unsigned (width -1 downto 0)      );
 end LFSR_v1;
 
 
 
 architecture Behavioral of LFSR_v1 is
 
-signal internal_number : unsigned(6 downto 0);
-signal feedback : std_logic;
+signal internal_number : unsigned(width -1 downto 0);
+signal feedback     :   std_logic;
 
     
 begin
 
-    
     next_number : process(clk, reset)
         
         begin 
@@ -69,12 +71,12 @@ begin
                             internal_number <= i_seed;
                         else
                             -- create the next random number
-                            internal_number <= internal_number(5 downto 0) & (internal_number(6) xnor internal_number(5)); 
+                            internal_number <= internal_number(width - 2 downto 0) & (internal_number(62) xnor internal_number(61)); 
                              
                         end if;
                     elsif (enable = '1') then
                         -- reset internal number to
-                        internal_number <= B"1111_111";                     
+                        internal_number <= (OTHERS => '1');                     
                     end if;
                     
                     o_number <= internal_number; 

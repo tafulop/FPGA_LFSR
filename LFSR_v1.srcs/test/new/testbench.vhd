@@ -33,8 +33,8 @@ architecture behavioral of testbench is
     signal reset    : std_logic;
     signal clk      : std_logic;
     signal i_load   : std_logic;
-    signal o_number : unsigned(6 downto 0);
-    signal i_seed   : unsigned(6 downto 0);
+    signal o_number : unsigned(62 downto 0);
+    signal i_seed   : unsigned(62 downto 0);
     
 
     ------------------------------------------------------------------------------
@@ -47,8 +47,8 @@ architecture behavioral of testbench is
             reset   :   std_logic;
             i_load  :   std_logic;
             clk     :   in    std_logic;
-            o_number:   out   unsigned (6 downto 0);
-            i_seed  :   in    unsigned (6 downto 0)
+            o_number:   out   unsigned (62 downto 0);
+            i_seed  :   in    unsigned (62 downto 0)
         
         );
     end component LFSR_v1;
@@ -96,7 +96,7 @@ begin
         enable  <=  '1';
         i_load  <=  '1';
         reset   <=  '0';
-        i_seed  <=  B"0000001";
+        i_seed  <=  X"000_0000_0000_0000" & "000";
         wait for 10 us;      
         
         i_load <= '0';
@@ -111,7 +111,7 @@ begin
         
         -- load another seed : 0
         i_load <= '1';
-        i_seed <= B"0000_000";
+        i_seed <= X"000_0000_0000_0000" & "000";
         wait for 20 ns;
         i_load <= '0';
         wait for 10 ms;
